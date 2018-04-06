@@ -1,0 +1,7 @@
+indexes:
+
+- kind: userlocation
+  properties:
+  - name: email
+  - name: time
+    direction: desc

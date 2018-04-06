@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../static" th:href="@{css/style.css}"/>
+	</head>
+	
+	<body>	
+	
+		<div class="aqi-data">
+			<table class="aqi-table">
+				<thead>
+					<th>AQI</th>
+					<th>Location</th>
+					<th>Geo Coordinates</th>
+					<th>Status</th>
+					<th>Time</th>
+				</thead>
+				
+				<tbody th:each="aqi : ${aqi}">
+					<tr>
+						<td th:text="${aqi.aqi}"/>
+						<td th:text="${aqi.location}"/>
+						<td th:text="${aqi.lat}"/>
+						<td th:text="${aqi.lng}"/>
+						<td th:text="${aqi.status}"/>
+						<td th:text="${aqi.time}"/>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="user-location-data">
+			<table class="user-location-table">
+					<thead>
+						<th>Email</th>
+						<th>Coordinates</th>
+						<th>Time</th>
+					</thead>
+					
+					<tbody th:each="location : ${locations}">
+						<tr>
+							<td th:text="${location.email}"/>
+							<td>(<p th:text="${location.lat}"/>,<p th:text="${location.lng}">)</p></td>
+							<td th:text="${location.timeAt}"/>
+						</tr>
+					</tbody>
+				</table>
+		</div>
+		
+	    <div id="map" style="height: 1000px; width: 1000px;"></div>
+	</body>
+
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+    	var map, heatmap;
+    
+	    function initMap() {
+	        map = new google.maps.Map(document.getElementById('map'), {
+	          zoom: 13,
+	          center: {lat: 54.180376, lng: -6.339278},
+	          mapTypeId: 'satellite'
+	        });
+
+	        var marker = new google.maps.Marker({
+	          position: {lat: 54.180376, lng: -6.339278},
+	          map: map,
+	          title: 'Hello World!'
+	        });
+
+	        /*]]>*/
+	    }
+    </script>
+    
+    <script async='async' defer='defer'
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtQqSSY0BofvLdtHC7FCPfExqNqa556l0&amp;libraries=visualization&amp;callback=initMap">
+	</script>
+
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Heatmap sample</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtQqSSY0BofvLdtHC7FCPfExqNqa556l0&amp;libraries=visualization"/>
+
+</head>
+<body>
+   	<div id="floating-panel">
+      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+      <button onclick="changeGradient()">Change gradient</button>
+      <button onclick="changeRadius()">Change radius</button>
+      <button onclick="changeOpacity()">Change opacity</button>
+    </div>
+    <div id="map" style="height: 1000px; width: 1000px;"></div>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    	
+      var map, heatmap;
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          center: {lat: 53.343761, lng: -6.255194},
+          mapTypeId: 'satellite'
+        });
+	    
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: getPoints(),
+          map: map
+        });
+        
+        drawVehicleMarkers ();
+
+      }
+      var y;
+      function drawVehicleMarkers () {
+    	  
+    	  y = /*[[${vehicles}]]*/;
+
+    	  var i = 0;
+    	  for(i=0; i<y.length; i++){
+        	  
+              var marker = new google.maps.Marker({
+                  position: {lat: y[i].currentLatitude, lng:  y[i].currentLongitude},
+                  map: map,
+                  title: 'Current position of ' + y[i].id
+              });
+              
+              var markerDest = new google.maps.Marker({
+                  position: {lat: y[i].destinationLatitude, lng: y[i].destinationLongitude},
+                  map: map,
+                  title: 'Destination of ' + y[i].id
+              });
+    	  }
+      }
+
+      function toggleHeatmap() {
+        heatmap.setMap(heatmap.getMap() ? null : map);
+      }
+
+      function changeGradient() {
+        var gradient = [
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+      }
+
+      function changeRadius() {
+        heatmap.set('radius', heatmap.get('radius') ? null : 20);
+      }
+
+      function changeOpacity() {
+        heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+      }
+      var x;
+      function getPoints() {
+         x = /*[[${req}]]*/;
+         
+        var gmapsCoords = [];
+        
+        var i = 0;
+        for(i=0; i<x.length; i++){
+    	   	var coords_lat = x[i].latitude;
+    	   	var coords_long = x[i].longitude;
+
+    	    var reqLatLng = {lat: coords_lat, lng: coords_long};
+    	    
+   			gmapsCoords.push(new google.maps.LatLng(reqLatLng)); 
+        }
+        
+        return gmapsCoords;
+	    
+      }
+
+    /*]]>*/
+    </script>
+
+    <script async='async' defer='defer'
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtQqSSY0BofvLdtHC7FCPfExqNqa556l0&amp;libraries=visualization&amp;callback=initMap">
+    </script>
+
+</body>
+</html>

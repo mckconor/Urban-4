@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Heatmap sample</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtQqSSY0BofvLdtHC7FCPfExqNqa556l0&amp;libraries=visualization"/>
+
+</head>
+<body>
+<img th:src="@{images/Markers/blue_MarkerA.png}"/>
+   	<div id="floating-panel">
+      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+      <button onclick="changeGradient()">Change gradient</button>
+      <button onclick="changeRadius()">Change radius</button>
+      <button onclick="changeOpacity()">Change opacity</button>
+    </div>
+    <div id="map" style="height: 1000px; width: 1000px;"></div>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    	
+      var map, heatmap;
+
+      function initMap() {
+    	  
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          center: {lat: 53.343761, lng: -6.255194},
+          mapTypeId: 'satellite'
+        });
+        
+        directionsDisplay.setMap(map);
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+        
+        busMarkers(map);
+        getWaypointsMarkers(map);
+
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: getPoints(),
+          map: map
+        });
+      }
+      
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+
+          var vehicle = /*[[${vehicles}]]*/;
+		  var waypointsIn = /*[[${waypoints}]]*/;
+    	  
+    	  var waypts = [];
+          var i = 0;
+          for(i = 0; i<waypointsIn.length; i++){
+	          waypts.push({
+            	location: new google.maps.LatLng(waypointsIn[i].latitude, waypointsIn[i].longitude),
+            	stopover: true
+          	});
+          }
+
+          directionsService.route({
+            origin: new google.maps.LatLng(vehicle[0].currentLatitude, vehicle[0].currentLongitude),
+            destination: new google.maps.LatLng(waypointsIn[waypointsIn.length-1].latitude, waypointsIn[waypointsIn.length-1].longitude),
+            waypoints: waypts,
+            optimizeWaypoints: true,
+            travelMode: 'DRIVING'
+          }, function(response, status) {
+            if (status === 'OK') {
+              directionsDisplay.setDirections(response);
+              var route = response.routes[0];
+            } else {
+              window.alert('Directions request failed due to ' + status);
+            }
+          });
+        }
+
+      function toggleHeatmap() {
+        heatmap.setMap(heatmap.getMap() ? null : map);
+      }
+
+      function changeGradient() {
+        var gradient = [
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+      }
+
+      function changeRadius() {
+        heatmap.set('radius', heatmap.get('radius') ? null : 20);
+      }
+
+      function changeOpacity() {
+        heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+      }
+
+      function busMarkers (map) {
+          var x = /*[[${vehicles}]]*/;
+          
+          var i = 0;
+          for(i=0; i<x.length; i++){
+        	  var latLng = new google.maps.LatLng(x[i].currentLatitude, x[i].currentLongitude);        	  
+        	  
+              var marker = new google.maps.Marker({
+          	    position: latLng,
+          	    map: map,
+          	    title: 'Vehicle' });
+        	  
+          }
+      }
+      
+
+      function getWaypointsMarkers (map) {
+		  var y = /*[[${waypoints}]]*/;
+    	  
+    	  var i = 0;
+          for(i=0; i<y.length; i++){
+ 			  var latLng = new google.maps.LatLng(y[i].latitude, y[i].longitude);        	  
+        	  
+              var marker = new google.maps.Marker({
+          	    position: latLng,
+          	    map: map,
+          	    title: 'Vehicle: ' + y[i].vehicleId + ' Waypoint: ' + i
+              });
+          }
+    	  
+      }
+      
+      function getPoints() {
+  		  var z = /*[[${requests}]]*/
+  		  
+  	      var gmapsCoords = [];
+  		  
+  		  var i = 0;
+          for(i=0; i<z.length; i++){ 
+              var destLatLng = {lat: z[i].destLatitude, lng: z[i].destLongitude};
+              var sourceLatLng = {lat: z[i].sourceLatitude, lng: z[i].sourceLongitude};
+
+              var j = 0;
+              for(j=0; j<z[i].amount; j++){
+	     		  gmapsCoords.push(new google.maps.LatLng(destLatLng)); 
+	     		  gmapsCoords.push(new google.maps.LatLng(sourceLatLng)); 
+              }
+          }
+          return gmapsCoords;
+      }
+
+    /*]]>*/
+    </script>
+
+    <script async='async' defer='defer'
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtQqSSY0BofvLdtHC7FCPfExqNqa556l0&amp;libraries=visualization&amp;callback=initMap">
+    </script>
+    <script async='async' defer='defer'
+    	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQ2XcvfyyL4SG0wMKwp5YZ-yWaNN5AtkA&amp;callback=initMap">
+    </script>
+
+</body>
+</html>

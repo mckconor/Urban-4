@@ -1,0 +1,56 @@
+#map {
+  height: 100%;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+#floating-panel {
+  background-color: #fff;
+  border: 1px solid #999;
+  left: 25%;
+  padding: 5px;
+  position: absolute;
+  top: 10px;
+  z-index: 5;
+}
+
+table.aqi-table th, table.user-location-table th {
+    background: lightgrey;
+}
+table.aqi-table th, table.aqi-table td {
+    width: 150px;
+    text-align: left;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+}
+
+.aqi-data, .user-location-data {
+	display: inline-block;
+	vertical-align: top;
+}
+
+table.user-location-table th, table.user-location-table td{
+	width: 250px;
+    text-align: left;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+}
+.user-location-table p {
+	display: inline-block;
+}
